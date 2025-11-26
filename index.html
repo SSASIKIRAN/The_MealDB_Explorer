@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TheMealDB Explorer</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background: #ff7043;
+        padding: 15px;
+        text-align: center;
+        color: white;
+        font-size: 30px;
+        font-weight: bold;
+    }
+    #container {
+        width: 90%;
+        margin: auto;
+        margin-top: 20px;
+    }
+    input {
+        width: 70%;
+        padding: 10px;
+        font-size: 18px;
+        border-radius: 8px;
+        border: 1px solid #aaa;
+    }
+    button {
+        padding: 10px 20px;
+        margin-left: 10px;
+        background: #e53935;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #c62828;
+    }
+    .meal-card {
+        background: white;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+    }
+    .meal-card img {
+        width: 150px;
+        border-radius: 12px;
+        margin-right: 20px;
+    }
+    h3 { margin: 0; }
+</style>
+</head>
+
+<body>
+
+<header>TheMealDB Explorer</header>
+
+<div id="container">
+    <h2>Search Meals</h2>
+
+    <input id="searchBox" placeholder="Type a meal name (e.g., Pasta)">
+    <button onclick="searchMeal()">Search</button>
+
+    <h2>Results</h2>
+    <div id="results">Start by searching...</div>
+</div>
+
+<script>
+const API = "http://localhost:5000/api/meals/search?name=";
+
+async function searchMeal() {
+    const name = document.getElementById("searchBox").value.trim();
+    if (!name) return alert("Enter a meal name!");
+
+    document.getElementById("results").innerHTML = "Searching...";
+
+    try {
+        const res = await fetch(API + name);
+        const data = await res.json();
+
+        if (!data.meals) {
+            document.getElementById("results").innerHTML = 
+                "<p>No results found.</p>";
+            return;
+        }
+
+        let html = "";
+        data.meals.forEach(meal => {
+            html += `
+                <div class="meal-card">
+                    <img src="${meal.strMealThumb}">
+                    <div>
+                        <h3>${meal.strMeal}</h3>
+                        <p><b>Category:</b> ${meal.strCategory}</p>
+                        <p><b>Area:</b> ${meal.strArea}</p>
+                    </div>
+                </div>
+            `;
+        });
+
+        document.getElementById("results").innerHTML = html;
+
+    } catch (err) {
+        document.getElementById("results").innerHTML =
+            "<p style='color:red'>Backend not running!</p>";
+    }
+}
+</script>
+
+</body>
+</html>
